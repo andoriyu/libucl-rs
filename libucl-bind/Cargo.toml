@@ -16,3 +16,4 @@ bitflags = "1.2"
 
 [build-dependencies]
 cmake = "0.1.42"
+pkg-config = "0.3.17"
