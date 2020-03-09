@@ -27,7 +27,7 @@ pub enum ucl_error {
     UCL_EINTERNAL = 6,
     #[doc = "< SSL error"]
     UCL_ESSL = 7,
-    #[doc = "< A merge error occured"]
+    #[doc = "< A merge error occurred"]
     UCL_EMERGE = 8,
 }
 pub use self::ucl_error as ucl_error_t;
@@ -650,6 +650,12 @@ extern "C" {
     ) -> bool;
 }
 extern "C" {
+    #[doc = " Reserve space in ucl array or object for `elt` elements"]
+    #[doc = " @param obj object to reserve"]
+    #[doc = " @param reserved size to reserve in an object"]
+    pub fn ucl_object_reserve(obj: *mut ucl_object_t, reserved: usize);
+}
+extern "C" {
     #[doc = " Append an element to the end of array object"]
     #[doc = " @param top destination object (must NOT be NULL)"]
     #[doc = " @param elt element to append (must NOT be NULL)"]
@@ -707,6 +713,12 @@ extern "C" {
     #[doc = " @param top array ucl object"]
     #[doc = " @return removed element or NULL if `top` is NULL or not an array"]
     pub fn ucl_array_pop_first(top: *mut ucl_object_t) -> *mut ucl_object_t;
+}
+extern "C" {
+    #[doc = " Return size of the array `top`"]
+    #[doc = " @param top object to get size from (must be of type UCL_ARRAY)"]
+    #[doc = " @return size of the array"]
+    pub fn ucl_array_size(top: *const ucl_object_t) -> ::std::os::raw::c_uint;
 }
 extern "C" {
     #[doc = " Return object identified by index of the array `top`"]
@@ -1006,7 +1018,7 @@ extern "C" {
     ) -> ucl_object_iter_t;
 }
 extern "C" {
-    #[doc = " Get the next object from the `obj`. This fucntion iterates over arrays, objects"]
+    #[doc = " Get the next object from the `obj`. This function iterates over arrays, objects"]
     #[doc = " and implicit arrays"]
     #[doc = " @param iter safe iterator"]
     #[doc = " @param expand_values expand explicit arrays and objects"]
@@ -1028,7 +1040,7 @@ pub enum ucl_iterate_type {
     UCL_ITERATE_BOTH = 3,
 }
 extern "C" {
-    #[doc = " Get the next object from the `obj`. This fucntion iterates over arrays, objects"]
+    #[doc = " Get the next object from the `obj`. This function iterates over arrays, objects"]
     #[doc = " and implicit arrays if needed"]
     #[doc = " @param iter safe iterator"]
     #[doc = " @param"]
@@ -1087,7 +1099,7 @@ extern "C" {
     pub fn ucl_parser_new(flags: ::std::os::raw::c_int) -> *mut ucl_parser;
 }
 extern "C" {
-    #[doc = " Sets the default priority for the parser applied to chunks that does not"]
+    #[doc = " Sets the default priority for the parser applied to chunks that do not"]
     #[doc = " specify priority explicitly"]
     #[doc = " @param parser parser object"]
     #[doc = " @param prio default priority (0 .. 16)"]
@@ -1096,6 +1108,13 @@ extern "C" {
         parser: *mut ucl_parser,
         prio: ::std::os::raw::c_uint,
     ) -> bool;
+}
+extern "C" {
+    #[doc = " Gets the default priority for the parser applied to chunks that do not"]
+    #[doc = " specify priority explicitly"]
+    #[doc = " @param parser parser object"]
+    #[doc = " @return true default priority (0 .. 16), -1 for failure"]
+    pub fn ucl_parser_get_default_priority(parser: *mut ucl_parser) -> ::std::os::raw::c_int;
 }
 extern "C" {
     #[doc = " Register new handler for a macro"]
@@ -1188,6 +1207,18 @@ extern "C" {
         data: *const ::std::os::raw::c_uchar,
         len: usize,
         priority: ::std::os::raw::c_uint,
+    ) -> bool;
+}
+extern "C" {
+    #[doc = " Insert new chunk to a parser (must have previously processed data with an existing top object)"]
+    #[doc = " @param parser parser structure"]
+    #[doc = " @param data the pointer to the beginning of a chunk"]
+    #[doc = " @param len the length of a chunk"]
+    #[doc = " @return true if chunk has been added and false in case of error"]
+    pub fn ucl_parser_insert_chunk(
+        parser: *mut ucl_parser,
+        data: *const ::std::os::raw::c_uchar,
+        len: usize,
     ) -> bool;
 }
 extern "C" {
@@ -1334,6 +1365,29 @@ extern "C" {
     pub fn ucl_parser_get_object(parser: *mut ucl_parser) -> *mut ucl_object_t;
 }
 extern "C" {
+    #[doc = " Get the current stack object as stack accessor function for use in macro"]
+    #[doc = " functions (refcount is increased)"]
+    #[doc = " @param parser parser object"]
+    #[doc = " @param depth depth of stack to retrieve (top is 0)"]
+    #[doc = " @return current stack object or NULL"]
+    pub fn ucl_parser_get_current_stack_object(
+        parser: *mut ucl_parser,
+        depth: ::std::os::raw::c_uint,
+    ) -> *mut ucl_object_t;
+}
+extern "C" {
+    #[doc = " Peek at the character at the current chunk position"]
+    #[doc = " @param parser parser structure"]
+    #[doc = " @return current chunk position character"]
+    pub fn ucl_parser_chunk_peek(parser: *mut ucl_parser) -> ::std::os::raw::c_uchar;
+}
+extern "C" {
+    #[doc = " Skip the character at the current chunk position"]
+    #[doc = " @param parser parser structure"]
+    #[doc = " @return success boolean"]
+    pub fn ucl_parser_chunk_skip(parser: *mut ucl_parser) -> bool;
+}
+extern "C" {
     #[doc = " Get the error string if parsing has been failed"]
     #[doc = " @param parser parser object"]
     #[doc = " @return error description"]
@@ -1388,7 +1442,7 @@ extern "C" {
     #[doc = " Move comment from `from` object to `to` object"]
     #[doc = " @param comments comments object"]
     #[doc = " @param what source object"]
-    #[doc = " @param whith destination object"]
+    #[doc = " @param with destination object"]
     #[doc = " @return `true` if `from` has comment and it has been moved to `to`"]
     pub fn ucl_comments_move(
         comments: *mut ucl_object_t,
@@ -1905,7 +1959,7 @@ pub struct ucl_schema_error {
     pub code: ucl_schema_error_code,
     #[doc = "< error message"]
     pub msg: [::std::os::raw::c_char; 128usize],
-    #[doc = "< object where error occured"]
+    #[doc = "< object where error occurred"]
     pub obj: *const ucl_object_t,
 }
 #[test]
@@ -1956,7 +2010,7 @@ extern "C" {
     #[doc = " @param schema schema object"]
     #[doc = " @param obj object to validate"]
     #[doc = " @param err error pointer, if this parameter is not NULL and error has been"]
-    #[doc = " occured, then `err` is filled with the exact error definition."]
+    #[doc = " occurred, then `err` is filled with the exact error definition."]
     #[doc = " @return true if `obj` is valid using `schema`"]
     pub fn ucl_object_validate(
         schema: *const ucl_object_t,
@@ -1970,7 +2024,7 @@ extern "C" {
     #[doc = " @param obj object to validate"]
     #[doc = " @param root root schema object"]
     #[doc = " @param err error pointer, if this parameter is not NULL and error has been"]
-    #[doc = " occured, then `err` is filled with the exact error definition."]
+    #[doc = " occurred, then `err` is filled with the exact error definition."]
     #[doc = " @return true if `obj` is valid using `schema`"]
     pub fn ucl_object_validate_root(
         schema: *const ucl_object_t,
@@ -1987,7 +2041,7 @@ extern "C" {
     #[doc = " @param root root schema object"]
     #[doc = " @param ext_refs external references (might be modified during validation)"]
     #[doc = " @param err error pointer, if this parameter is not NULL and error has been"]
-    #[doc = " occured, then `err` is filled with the exact error definition."]
+    #[doc = " occurred, then `err` is filled with the exact error definition."]
     #[doc = " @return true if `obj` is valid using `schema`"]
     pub fn ucl_object_validate_root_ext(
         schema: *const ucl_object_t,
