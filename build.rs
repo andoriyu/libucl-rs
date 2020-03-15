@@ -6,7 +6,7 @@ use cmake::Config;
 
 fn main() {
     let result = pkg_config::Config::new()
-        .atleast_version("0.8.0")
+        .atleast_version("0.8.1")
         .statik(true)
         .probe("libucl");
     if result.is_err() {
