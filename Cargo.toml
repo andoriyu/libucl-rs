@@ -1,7 +1,19 @@
-[workspace]
-members = ["./*/src/.."]
+[package]
+name = "uclicious-libucl-sys"
+version = "0.8.0"
+description = "Low-level bindings to libucl."
+authors = ["Łukasz Niemier <lukasz@niemier.pl>", "Igor Laćarac <draftsix@gmail.com>", "Andrey Cherkashin <andoriyu@gmail.com>"]
+build = "build.rs"
+license-file = "LICENSE"
+repository = "uclicious-libucl-sys"
+exclude = [
+  "libucl/lua/libucl.rockspec"
+]
 
-[profile.release]
-lto = true
-opt-level = 3
-codegen-units = 1
+[dependencies]
+libc = "0.2.66"
+bitflags = "1.2"
+
+[build-dependencies]
+cmake = "0.1.42"
+pkg-config = "0.3.17"
