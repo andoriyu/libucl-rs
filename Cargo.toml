@@ -1,6 +1,6 @@
 [package]
 name = "uclicious-libucl-sys"
-version = "0.8.2-alpha.1"
+version = "0.8.2-alpha.2"
 description = "Low-level bindings to libucl."
 authors = ["Łukasz Niemier <lukasz@niemier.pl>", "Igor Laćarac <draftsix@gmail.com>", "Andrey Cherkashin <andoriyu@gmail.com>"]
 build = "build.rs"

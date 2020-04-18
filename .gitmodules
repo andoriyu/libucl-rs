@@ -1,4 +1,4 @@
 [submodule "libucl"]
 	path = libucl
 	url = https://github.com/andoriyu/libucl.git
-	branch = upstream/20200412
+	branch = upstream/20200418
